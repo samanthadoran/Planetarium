@@ -41,19 +41,24 @@ class Object
     private:
         //Time factor
         const unsigned int t            = 10000;
+
         //1 million kilometers per pixel, we deal in meters so 1 million * 1 thousand = scale
         const unsigned int scale        = 1000000000;
 
         //The number we multiply velocity by when we are moving to make sure it only moves with reference to scale
         const long double velocityScale = .000000001;
 
+        //Mass of the object measured in kilograms
         float mass;
+        //Radius of the object, measured in million of kilometers
         double radius;
 
         long double x;
         long double y;
 
+        //The angle for velocity, in DEGREES
         long double theta;
+        //Velocity, measured in meters per second
         long double velocity;
 };
 

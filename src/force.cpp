@@ -1,5 +1,6 @@
 #include "../include/force.h"
 #include <iostream>
+
 Force::Force(long double magnitude, long double theta)
 {
     this->magnitude = magnitude;
@@ -21,16 +22,22 @@ long double Force::getYComponent() const
     return sin(theta*(PI/180.0l))*magnitude;
 }
 
+/*Returns the angle of force being applied relative to the
+ *horizontal, marked const so overload doesn't complain.*/
 long double Force::getTheta() const
 {
     return theta;
 }
 
+/*Returns the magnitude of force being applied relative to the
+ *horizontal, marked const so overload doesn't complain.*/
 long double Force::getMagnitude() const
 {
     return magnitude;
 }
 
+/*A force plus a force is simply equal to the sum of their components
+ *and the new angle*/
 Force Force::operator+ (const Force &other)
 {
     long double xComp    = this->getXComponent()+other.getXComponent();
