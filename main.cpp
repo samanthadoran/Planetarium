@@ -1,10 +1,10 @@
 #include "include/object.h"
 #include <math.h>
 #include <sstream>
-
+#include <iostream>
 int main()
 {
-    //mass,radius,x,y
+    //Name, mass, radius, x, y
     Object * moon  = new Object("Moon",7.34767309e22,.017,720,300.7844);
     Object * earth = new Object("Earth",5.97219e24,.133,720,300.4);
     Object * sun   = new Object("Sun",1.9891e30,.69,720,450);
@@ -19,6 +19,7 @@ int main()
     sf::RenderWindow App(sf::VideoMode(1920, 1030), "SFML window");
     App.setVerticalSyncEnabled(true);
 
+    //Consider switching this to initializeVelocity(long double velocity, long double theta)
     moon ->calcVelocity(1030+29300.0l,0.0);
     mars ->calcVelocity(26500.0l,0.0);
     earth->calcVelocity(29300,0.0);
@@ -27,40 +28,59 @@ int main()
     earth->calcVelocityTheta(29300,0.0);
     mars ->calcVelocityTheta(26500.0l,0.0);
 
+    //Give earth pointers to the objects that can modify it.
     earth->addModifier(moon);
     earth->addModifier(sun);
     earth->addModifier(mars);
 
+    //Give the moon pointers to the objects that can modify it.
     moon->addModifier(sun);
     moon->addModifier(earth);
     moon->addModifier(mars);
 
+    //Give mars pointers to the objects that can modify it.
     mars->addModifier(sun);
     mars->addModifier(earth);
     mars->addModifier(moon);
 
+    //Give the sun pointers to the objects that can modify it.
     sun->addModifier(earth);
     sun->addModifier(moon);
     sun->addModifier(mars);
+
     std::vector<Object*> bodies;
 
+    //Make loops easier
     bodies.push_back(sun);
     bodies.push_back(earth);
     bodies.push_back(moon);
     bodies.push_back(mars);
 
-	int index = 0;
+	//Used to navigate the object list
+	unsigned int index = 0;
+	//Magnifying glass
+	bool focus = true;
+
 	// Start the game loop
     while (App.isOpen())
     {
         sf::View view;
-        view.reset(sf::FloatRect(0, 0, 300, 300));
-        view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-        //view.setCenter(earth->circle.getPosition().x+earth->getRadius(),earth->circle.getPosition().y+earth->getRadius());
-        view.setCenter(bodies[index]->circle.getPosition().x+bodies[index]->getRadius(),bodies[index]->circle.getPosition().y+bodies[index]->getRadius());
-        view.zoom(.00995);
-        App.setView(view);
 
+        //If we are focusing, zoom in on our target!
+        if(focus)
+        {
+            view.reset(sf::FloatRect(0, 0, 300, 300));
+            view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
+            view.setCenter(bodies[index]->circle.getPosition().x+bodies[index]->getRadius(),bodies[index]->circle.getPosition().y+bodies[index]->getRadius());
+            view.zoom(.00995);
+            App.setView(view);
+        }
+        else
+        {
+            App.setView(App.getDefaultView());
+        }
+
+        //Update everything relative to its modifiers before we move things, thus movement is simultaneous
         mars ->updateValues();
         moon ->updateValues();
         earth->updateValues();
@@ -74,7 +94,8 @@ int main()
 
         //HOLY SHIT DATAAAAAAA
         ss << "Press the left and right arrow keys to select different objects, press up and down to change their mass.";
-        ss << "\nSun Coordinates: ("              << sun->circle.getPosition().x<<","<<sun->circle.getPosition().y << ")\n";
+        ss << "\nPress v to switch between solar system focus the object you have selected";
+        ss << "\nSun Coordinates: ("              << sun->getX() <<"," << sun->getY() << ")\n";
         ss << "\nObject selected: "               << bodies[index]->getName();
         ss << "'s current mass: "                 << bodies[index]->getMass();
 
@@ -84,7 +105,7 @@ int main()
         //Text characteristics
         text.setCharacterSize(30);
         text.setStyle(sf::Text::Bold);
-        text.setColor(sf::Color::Red);
+        text.setColor(sf::Color::Green);
         text.setPosition(50,5);
 
         // Process events
@@ -101,34 +122,39 @@ int main()
             {
                 switch(Event.key.code)
                 {
+                    //Move up our vector
                     case sf::Keyboard::Left:
                     {
+                        //Loop around if we hit the top of the vector
                         if(index+1==bodies.size())
                         {
                             index=0;
                         }
                         else
                         {
-                            index++;
+                            ++index;
                         }
 
                         break;
                     }
 
+                    //Move down our vector
                     case sf::Keyboard::Right:
                     {
-                        if(index-1<0)
+                        //Loop around if we hit the bottom of the vector
+                        if(index==0)
                         {
                             index=bodies.size()-1;
                         }
                         else
                         {
-                            index--;
+                            --index;
                         }
 
                         break;
                     }
 
+                    //Modify the mass of the object at position index, consider making this dynamic relative to current mass
                     case sf::Keyboard::Up:
                     {
                         if(Event.key.code == sf::Keyboard::Up)
@@ -139,6 +165,7 @@ int main()
                         break;
                     }
 
+                    //Modify the mass of the object at position index, consider making this dynamic relative to current mass
                     case sf::Keyboard::Down:
                     {
                         if(Event.key.code == sf::Keyboard::Down)
@@ -149,6 +176,29 @@ int main()
                         break;
                     }
 
+                    //Switch between showing the solar system and a finer view of the object selected
+                    case sf::Keyboard::V:
+                    {
+                        focus=!focus;
+                        if(focus)
+                        {
+                            for(Object *x : bodies)
+                            {
+                                x->setRadius(x->getRadius()/10.0);
+                            }
+                        }
+                        else
+                        {
+                            for(Object *x : bodies)
+                            {
+                                x->setRadius((x->getRadius()*10.0));
+                            }
+                        }
+
+                        break;
+                    }
+
+                    //Quit
                     case sf::Keyboard::Escape:
                     {
                         App.close();
@@ -160,42 +210,6 @@ int main()
                         break;
                     }
                 }
-                /*if(Event.key.code == sf::Keyboard::Escape)
-                {
-                    App.close();
-                }
-                if(Event.key.code == sf::Keyboard::Left)
-                {
-                    if(index+1==bodies.size())
-                    {
-                        index=0;
-                    }
-                    else
-                    {
-                        index++;
-                    }
-                }
-
-                if(Event.key.code == sf::Keyboard::Right)
-                {
-                    if(index-1<0)
-                    {
-                        index=bodies.size()-1;
-                    }
-                    else
-                    {
-                        index--;
-                    }
-                }
-                if(Event.key.code == sf::Keyboard::Up)
-                {
-                    bodies[index]->setMass(bodies[index]->getMass()+1.0e22);
-                }
-
-                if(Event.key.code == sf::Keyboard::Down)
-                {
-                    bodies[index]->setMass(bodies[index]->getMass()-1.0e22);
-                }*/
             }
         }
 
@@ -205,22 +219,10 @@ int main()
         //Draw our drawables
         App.draw(text);
 
-        sf::CircleShape moonCirc = moon->circle;
-        moonCirc.move(-1*moon->getRadius(), -1*moon->getRadius());
-
-        sf::CircleShape earthCirc = earth->circle;
-        earthCirc.move(-1*earth->getRadius(),-1*earth->getRadius());
-
-        sf::CircleShape sunCirc = sun->circle;
-        sunCirc.move(-1*sun->getRadius(),-1*sun->getRadius());
-
-        sf::CircleShape marsCirc = mars->circle;
-        marsCirc.move(-1*mars->getRadius(),-1*mars->getRadius());
-
-        App.draw(marsCirc);
-        App.draw(earthCirc);
-        App.draw(moonCirc);
-        App.draw(sunCirc);
+        for(Object *x: bodies)
+        {
+            App.draw(x->circle);
+        }
 
         // Update the window
         App.display();

@@ -9,7 +9,7 @@ Object::Object(std::string name,double mass, double radius, long double x, long 
     this->x      = x;
     this->y      = y;
     circle.setRadius(this->radius);
-    circle.setPosition(x, y);
+    circle.setPosition(x-radius, y-radius);
 }
 //Getter setters
 double Object::getMass() const
@@ -31,31 +31,46 @@ void Object::setMass(double mass)
 {
     if(mass > 0.0)
     {
-        this->mass=mass;
+        this->mass = mass;
     }
 }
 
-//Calculate the theta at which velocity is going
-long double Object::calcVelocityTheta(const long double x, const long double y)
+long double Object::getX() const
 {
-    //theta = (atan2(y,x)*(180.0/PI));
+    return x;
+}
 
-    return  (atan2(y,x)*(180.0/PI));
+long double Object::getY() const
+{
+    return y;
+}
+
+void Object::setRadius(double radius)
+{
+    this->radius = radius;
+    circle.setRadius(radius);
+}
+//Calculate the theta at which velocity is going
+long double Object::calcVelocityTheta(const long double diffX, const long double diffY)
+{
+    theta = (atan2(y,x)*(180.0/PI));
+
+    return  (atan2(diffY,diffX)*(180.0/PI));
 }
 
 //Calculate our new velocity
-double Object::calcVelocity(const double x, const double y)
+double Object::calcVelocity(const double diffX, const double diffY)
 {
-    velocity = (sqrt(pow(y,2) + pow(x,2)));
-    calcVelocityTheta(x,y);
+    velocity = (sqrt(pow(diffY,2) + pow(diffX,2)));
+    calcVelocityTheta(diffX,diffY);
 
-    return (sqrt(pow(y,2) + pow(x,2)));
+    return (sqrt(pow(diffY,2) + pow(diffX,2)));
 }
 
 //Get the distance between two objects
 double Object::calcDist(Object other) const
 {
-    return sqrt(pow((this->circle.getPosition().y*scale-other.circle.getPosition().y*scale),2)+pow((this->circle.getPosition().x*scale-other.circle.getPosition().x*scale),2));
+    return sqrt(pow((this->getY()*scale-other.getY()*scale),2)+pow((this->getX()*scale-other.getX()*scale),2));
 }
 
 //Add a planetary modifier to the vector
@@ -67,9 +82,8 @@ void Object::addModifier(Object * obj)
 long double Object::calcForceTheta(Object other) const
 {
     //Difference in x and y to use in atan2
-    long double diffY = other.circle.getPosition().y*scale-this->circle.getPosition().y*scale;
-    long double diffX = other.circle.getPosition().x*scale-this->circle.getPosition().x*scale;
-
+    long double diffY = other.getY()*scale-this->getY()*scale;
+    long double diffX = other.getX()*scale-this->getX()*scale;
     return (atan2(diffY, diffX)*(180.0l/PI));
 }
 
@@ -87,9 +101,9 @@ Force Object::sumForces(std::vector<Force> forces) const
     //Make an empty force to add to
     Force tempForce(0.0,0.0l);
 
-    for(Force x: forces)
+    for(Force force: forces)
     {
-        tempForce = tempForce + x;
+        tempForce = tempForce + force;
     }
 
     return tempForce;
@@ -141,7 +155,7 @@ void Object::move()
     x += velocityScale*velocity*cos(theta*(PI/180.0l))*t;
     y += velocityScale*velocity*sin(theta*(PI/180.0l))*t;
 
-    circle.setPosition(x,y);
+    circle.setPosition(x-radius, y-radius);
 }
 
 Object::~Object()

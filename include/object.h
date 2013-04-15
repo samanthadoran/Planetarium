@@ -35,9 +35,13 @@ class Object
         double getMass() const;
         double getRadius() const;
         std::string getName() const;
+        long double getX() const;
+        long double getY() const;
 
         //Setter
         void setMass(double);
+        void setRadius(double);
+
 
         Object(std::string, double, double, long double, long double);
         virtual ~Object();
