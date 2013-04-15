@@ -5,10 +5,10 @@
 int main()
 {
     //mass,radius,x,y
-    Object * moon  = new Object(7.34767309e22,.17,720,300.7844);
-    Object * earth = new Object(5.97219e24,1.33,720,300.4);
-    Object * sun   = new Object(1.9891e30,6.9,720,450);
-    Object * mars  = new Object(0.64185e24,3.39,720,243);
+    Object * moon  = new Object("Moon",7.34767309e22,.017,720,300.7844);
+    Object * earth = new Object("Earth",5.97219e24,.133,720,300.4);
+    Object * sun   = new Object("Sun",1.9891e30,.69,720,450);
+    Object * mars  = new Object("Mars",0.64185e24,.339,720,243);
 
     mars ->circle.setFillColor(sf::Color::Red);
     earth->circle.setFillColor(sf::Color::Blue);
@@ -42,45 +42,47 @@ int main()
     sun->addModifier(earth);
     sun->addModifier(moon);
     sun->addModifier(mars);
+    std::vector<Object*> bodies;
 
+    bodies.push_back(sun);
+    bodies.push_back(earth);
+    bodies.push_back(moon);
+    bodies.push_back(mars);
+
+	int index = 0;
 	// Start the game loop
     while (App.isOpen())
     {
         sf::View view;
         view.reset(sf::FloatRect(0, 0, 300, 300));
         view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-        view.setCenter(earth->circle.getPosition().x+earth->getRadius(),earth->circle.getPosition().y+earth->getRadius());
+        //view.setCenter(earth->circle.getPosition().x+earth->getRadius(),earth->circle.getPosition().y+earth->getRadius());
+        view.setCenter(bodies[index]->circle.getPosition().x+bodies[index]->getRadius(),bodies[index]->circle.getPosition().y+bodies[index]->getRadius());
         view.zoom(.00995);
-        //App.setView(view);
+        App.setView(view);
 
         mars ->updateValues();
         moon ->updateValues();
         earth->updateValues();
-        //sun  ->updateValues();
 
         moon ->move();
         earth->move();
         mars ->move();
-        //sun  ->move();
 
         // Create a stringstream to later convert to sf::text
         std::stringstream ss;
 
         //HOLY SHIT DATAAAAAAA
-        ss << "\nSun Coordinates: ("              << sun->circle.getPosition().x<<","<<sun->circle.getPosition().y << "\n";
-        /*ss <<"\nVx: "                            << moon->velocity*cos(moon->theta*(PI/180.0));
-        ss << "\nVy: "                            << moon->velocity*sin(moon->theta*(PI/180.0));
-        ss << "\nVTheta: "                        << moon->theta;
-        ss << "\nObj_x: "                         << moon->circle.getPosition().x;
-        ss << "\nObj_y: "                         << moon->circle.getPosition().y;
-        ss << "\nDistance from earth to moon: "   << moon->calcDist(*earth)/1000;
-        ss << "\nDistance from sun to earth: "    << earth->calcDist(*sun);*/
+        ss << "Press the left and right arrow keys to select different objects, press up and down to change their mass.";
+        ss << "\nSun Coordinates: ("              << sun->circle.getPosition().x<<","<<sun->circle.getPosition().y << ")\n";
+        ss << "\nObject selected: "               << bodies[index]->getName();
+        ss << "'s current mass: "                 << bodies[index]->getMass();
 
         //Put our data into something sfml can display.
         sf::Text text(ss.str());
 
         //Text characteristics
-        text.setCharacterSize(50);
+        text.setCharacterSize(30);
         text.setStyle(sf::Text::Bold);
         text.setColor(sf::Color::Red);
         text.setPosition(50,5);
@@ -90,9 +92,110 @@ int main()
         while (App.pollEvent(Event))
         {
             // Close window : exit
-            if (Event.type == sf::Event::Closed)
+            if(Event.type == sf::Event::Closed)
             {
                 App.close();
+            }
+
+            if(Event.type == sf::Event::KeyPressed)
+            {
+                switch(Event.key.code)
+                {
+                    case sf::Keyboard::Left:
+                    {
+                        if(index+1==bodies.size())
+                        {
+                            index=0;
+                        }
+                        else
+                        {
+                            index++;
+                        }
+
+                        break;
+                    }
+
+                    case sf::Keyboard::Right:
+                    {
+                        if(index-1<0)
+                        {
+                            index=bodies.size()-1;
+                        }
+                        else
+                        {
+                            index--;
+                        }
+
+                        break;
+                    }
+
+                    case sf::Keyboard::Up:
+                    {
+                        if(Event.key.code == sf::Keyboard::Up)
+                        {
+                            bodies[index]->setMass(bodies[index]->getMass()+1.0e30);
+                        }
+
+                        break;
+                    }
+
+                    case sf::Keyboard::Down:
+                    {
+                        if(Event.key.code == sf::Keyboard::Down)
+                        {
+                            bodies[index]->setMass(bodies[index]->getMass()-1.0e30);
+                        }
+
+                        break;
+                    }
+
+                    case sf::Keyboard::Escape:
+                    {
+                        App.close();
+                        break;
+                    }
+
+                    default:
+                    {
+                        break;
+                    }
+                }
+                /*if(Event.key.code == sf::Keyboard::Escape)
+                {
+                    App.close();
+                }
+                if(Event.key.code == sf::Keyboard::Left)
+                {
+                    if(index+1==bodies.size())
+                    {
+                        index=0;
+                    }
+                    else
+                    {
+                        index++;
+                    }
+                }
+
+                if(Event.key.code == sf::Keyboard::Right)
+                {
+                    if(index-1<0)
+                    {
+                        index=bodies.size()-1;
+                    }
+                    else
+                    {
+                        index--;
+                    }
+                }
+                if(Event.key.code == sf::Keyboard::Up)
+                {
+                    bodies[index]->setMass(bodies[index]->getMass()+1.0e22);
+                }
+
+                if(Event.key.code == sf::Keyboard::Down)
+                {
+                    bodies[index]->setMass(bodies[index]->getMass()-1.0e22);
+                }*/
             }
         }
 
@@ -113,7 +216,7 @@ int main()
 
         sf::CircleShape marsCirc = mars->circle;
         marsCirc.move(-1*mars->getRadius(),-1*mars->getRadius());
-        //earth->circle.rotate(10);
+
         App.draw(marsCirc);
         App.draw(earthCirc);
         App.draw(moonCirc);

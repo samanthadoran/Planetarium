@@ -2,7 +2,7 @@
 #define OBJECT_H
 #include <math.h>
 #include <vector>
-
+#include <string.h>
 #include "force.h"
 
 #include <SFML/Graphics.hpp>
@@ -34,8 +34,12 @@ class Object
         //Getter
         double getMass() const;
         double getRadius() const;
+        std::string getName() const;
 
-        Object(double, double, long double, long double);
+        //Setter
+        void setMass(double);
+
+        Object(std::string, double, double, long double, long double);
         virtual ~Object();
     protected:
     private:
@@ -46,7 +50,7 @@ class Object
         const unsigned int scale        = 1000000000;
 
         //The number we multiply velocity by when we are moving to make sure it only moves with reference to scale
-        const long double velocityScale = .000000001;
+        const long double velocityScale = 0.000000001;
 
         //Mass of the object measured in kilograms
         float mass;
@@ -55,6 +59,8 @@ class Object
 
         long double x;
         long double y;
+
+        std::string name;
 
         //The angle for velocity, in DEGREES
         long double theta;

@@ -1,8 +1,9 @@
 #include "../include/object.h"
 #include <iostream>
 
-Object::Object(double mass, double radius, long double x, long double y)
+Object::Object(std::string name,double mass, double radius, long double x, long double y)
 {
+    this->name   = name;
     this->mass   = mass;
     this->radius = radius;
     this->x      = x;
@@ -19,6 +20,19 @@ double Object::getMass() const
 double Object::getRadius() const
 {
     return radius;
+}
+
+std::string Object::getName() const
+{
+    return name;
+}
+
+void Object::setMass(double mass)
+{
+    if(mass > 0.0)
+    {
+        this->mass=mass;
+    }
 }
 
 //Calculate the theta at which velocity is going
@@ -124,10 +138,10 @@ void Object::updateValues()
 void Object::move()
 {
     //Translate the object based upon our new velocity vector
-    circle.setPosition(
-                       (velocityScale*velocity*cos(theta*(PI/180.0l)))*t + circle.getPosition().x,
-                       (velocityScale*velocity*sin(theta*(PI/180.0l)))*t + circle.getPosition().y
-                       );
+    x += velocityScale*velocity*cos(theta*(PI/180.0l))*t;
+    y += velocityScale*velocity*sin(theta*(PI/180.0l))*t;
+
+    circle.setPosition(x,y);
 }
 
 Object::~Object()
