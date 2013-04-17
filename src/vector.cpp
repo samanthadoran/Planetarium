@@ -8,6 +8,12 @@ Vector::Vector(long double magnitude, long double theta)
     //ctor
 }
 
+Vector::Vector()
+{
+    magnitude = 0.0l;
+    theta = 0.0l;
+}
+
 /*Returns the x component of the vector, marked const so
  *that the operator overload will not complain*/
 long double Vector::getXComponent() const

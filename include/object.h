@@ -71,7 +71,7 @@ class Object
         std::vector<Object*> modifiers;
 
         //Momentum: kg*(m/s)
-        Vector * momentum;
+        Vector momentum;
 };
 
 #endif // OBJECT_H

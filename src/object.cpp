@@ -10,7 +10,6 @@ Object::Object(std::string name, double mass, double radius, long double x, long
     this->y      = y;
     circle.setRadius(this->radius);
     circle.setPosition(x-radius, y-radius);
-    momentum = new Vector(this->getMass()*0.0l, 0.0l);
 }
 
 //Getter setters
@@ -57,7 +56,7 @@ void Object::calcMomentum(const long double diffX, const long double diffY)
 {
     long double mTheta = (atan2(diffY,diffX))*(180.0l/PI);
     long double magnitude = this->getMass()*sqrt(diffX*diffX + diffY*diffY);
-    momentum = new Vector(magnitude, mTheta);
+    momentum = Vector(magnitude, mTheta);
 }
 
 //Get the distance between two objects
@@ -113,8 +112,8 @@ void Object::modMomentum(Vector force)
     long double accel_y    = 1.0l*force.getYComponent()/(this->getMass()*1.0l);
 
     //Get the components of our velocity so as to modify them by our accel
-    long double velocity_x = momentum->getXComponent()/(this->getMass()*1.0l);
-    long double velocity_y = momentum->getYComponent()/(this->getMass()*1.0l);
+    long double velocity_x = momentum.getXComponent()/(this->getMass()*1.0l);
+    long double velocity_y = momentum.getYComponent()/(this->getMass()*1.0l);
 
     velocity_x             = velocity_x + accel_x*t;
     velocity_y             = velocity_y + accel_y*t;
@@ -143,8 +142,8 @@ void Object::updateValues()
 void Object::move()
 {
     //Translate the object based upon our new momentum vector
-    x += velocityScale*(momentum->getXComponent()/(this->getMass()*1.0l))*t;
-    y += velocityScale*(momentum->getYComponent()/(this->getMass()*1.0l))*t;
+    x += velocityScale*(momentum.getXComponent()/(this->getMass()*1.0l))*t;
+    y += velocityScale*(momentum.getYComponent()/(this->getMass()*1.0l))*t;
 
     //Put our circle's center at (x,y)
     circle.setPosition(x-radius, y-radius);

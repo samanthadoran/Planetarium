@@ -14,6 +14,7 @@ class Vector
         long double getMagnitude() const ;
 
         Vector(long double, long double);
+        Vector();
         virtual ~Vector();
 
         Vector operator+(const Vector&);
