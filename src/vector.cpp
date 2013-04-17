@@ -1,44 +1,44 @@
-#include "../include/force.h"
+#include "../include/vector.h"
 #include <iostream>
 
-Force::Force(long double magnitude, long double theta)
+Vector::Vector(long double magnitude, long double theta)
 {
     this->magnitude = magnitude;
     this->theta     = theta;
     //ctor
 }
 
-/*Returns the x component of the force, marked const so
+/*Returns the x component of the vector, marked const so
  *that the operator overload will not complain*/
-long double Force::getXComponent() const
+long double Vector::getXComponent() const
 {
     return cos(theta*(PI/180.0l))*magnitude;
 }
 
-/*Returns the y component of the force, marked const so
+/*Returns the y component of the vector, marked const so
  *that the operator overload will not complain*/
-long double Force::getYComponent() const
+long double Vector::getYComponent() const
 {
     return sin(theta*(PI/180.0l))*magnitude;
 }
 
-/*Returns the angle of force being applied relative to the
+/*Returns the angle of vector being applied relative to the
  *horizontal, marked const so overload doesn't complain.*/
-long double Force::getTheta() const
+long double Vector::getTheta() const
 {
     return theta;
 }
 
-/*Returns the magnitude of force being applied relative to the
+/*Returns the magnitude of vector being applied relative to the
  *horizontal, marked const so overload doesn't complain.*/
-long double Force::getMagnitude() const
+long double Vector::getMagnitude() const
 {
     return magnitude;
 }
 
-/*A force plus a force is simply equal to the sum of their components
+/*A vector plus a vector is simply equal to the sum of their components
  *and the new angle*/
-Force Force::operator+ (const Force &other)
+Vector Vector::operator+ (const Vector &other)
 {
     long double xComp    = this->getXComponent()+other.getXComponent();
     long double yComp    = this->getYComponent()+other.getYComponent();
@@ -47,10 +47,10 @@ Force Force::operator+ (const Force &other)
 
     long double newMag   = sqrt(pow(xComp,2)+pow(yComp,2));
 
-    return Force(newMag,newTheta);
+    return Vector(newMag,newTheta);
 }
 
-Force::~Force()
+Vector::~Vector()
 {
     //dtor
 }

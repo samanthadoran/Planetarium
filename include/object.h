@@ -3,7 +3,7 @@
 #include <math.h>
 #include <vector>
 #include <string.h>
-#include "force.h"
+#include "vector.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -18,14 +18,13 @@ class Object
         void addModifier(Object*);
         void updateValues();
 
-        double calcVelocity(const double, const double);
-        void calcVelocityTheta(const long double, const long double);
-        void modVelocity(Force);
+        void calcMomentum(const long double, const long double);
+        void modMomentum(Vector);
 
-        Force calcForce(Object) const;
+        Vector calcForce(Object) const;
         long double calcForceTheta(Object) const;
 
-        Force sumForces(std::vector<Force>) const;
+        Vector sumForces(std::vector<Vector>) const;
 
         void move();
 
@@ -35,6 +34,7 @@ class Object
         std::string getName() const;
         long double getX() const;
         long double getY() const;
+        Vector getMomentum() const;
 
         //Setter
         void setMass(double);
@@ -58,9 +58,10 @@ class Object
         //Mass of the object measured in kilograms
         float mass;
 
-        //Radius of the object, measured in million of kilometers
+        //Radius of the object, measured in millions of kilometers
         double radius;
 
+        //X,y of the object, represented in millions of kilometers
         long double x;
         long double y;
 
@@ -69,11 +70,8 @@ class Object
 
         std::vector<Object*> modifiers;
 
-        //The angle for velocity, in DEGREES
-        long double theta;
-
-        //Velocity, measured in meters per second
-        long double velocity;
+        //Momentum: kg*(m/s)
+        Vector * momentum;
 };
 
 #endif // OBJECT_H

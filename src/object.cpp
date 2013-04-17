@@ -1,7 +1,7 @@
 #include "../include/object.h"
 #include <iostream>
 
-Object::Object(std::string name,double mass, double radius, long double x, long double y)
+Object::Object(std::string name, double mass, double radius, long double x, long double y)
 {
     this->name   = name;
     this->mass   = mass;
@@ -10,6 +10,7 @@ Object::Object(std::string name,double mass, double radius, long double x, long 
     this->y      = y;
     circle.setRadius(this->radius);
     circle.setPosition(x-radius, y-radius);
+    momentum = new Vector(this->getMass()*0.0l, 0.0l);
 }
 
 //Getter setters
@@ -52,19 +53,11 @@ void Object::setRadius(double radius)
     circle.setRadius(radius);
 }
 
-//Calculate the theta at which velocity is going
-void Object::calcVelocityTheta(const long double diffX, const long double diffY)
+void Object::calcMomentum(const long double diffX, const long double diffY)
 {
-    theta = (atan2(diffY,diffX)*(180.0/PI));
-}
-
-//Calculate our new velocity
-double Object::calcVelocity(const double diffX, const double diffY)
-{
-    velocity = (sqrt(pow(diffY,2) + pow(diffX,2)));
-    calcVelocityTheta(diffX,diffY);
-
-    return (sqrt(pow(diffY,2) + pow(diffX,2)));
+    long double mTheta = (atan2(diffY,diffX))*(180.0l/PI);
+    long double magnitude = this->getMass()*sqrt(diffX*diffX + diffY*diffY);
+    momentum = new Vector(magnitude, mTheta);
 }
 
 //Get the distance between two objects
@@ -88,7 +81,7 @@ long double Object::calcForceTheta(Object other) const
     return (atan2(diffY, diffX)*(180.0l/PI));
 }
 
-Force Object::calcForce(Object obj) const
+Vector Object::calcForce(Object obj) const
 {
     //Get the distance for use in the force equation
     long double distance = calcDist(obj);
@@ -97,15 +90,15 @@ Force Object::calcForce(Object obj) const
     long double magnitude = ((6.674*pow(10,-11)*(this->getMass()*obj.getMass()))/pow(distance,2));
     long double forceTheta = calcForceTheta(obj);
 
-    return Force(magnitude, forceTheta);
+    return Vector(magnitude, forceTheta);
 }
 
-Force Object::sumForces(std::vector<Force> forces) const
+Vector Object::sumForces(std::vector<Vector> forces) const
 {
     //Make an empty force to add to
-    Force tempForce(0.0,0.0l);
+    Vector tempForce(0.0,0.0l);
 
-    for(Force force: forces)
+    for(Vector force: forces)
     {
         tempForce = tempForce + force;
     }
@@ -113,26 +106,26 @@ Force Object::sumForces(std::vector<Force> forces) const
     return tempForce;
 }
 
-void Object::modVelocity(Force accel)
+void Object::modMomentum(Vector force)
 {
     //Get the components of our accel, make sure to multiply by 1000 for the scale.
-    long double accel_x    = 1.0l*accel.getXComponent()/(this->getMass()*1.0l);
-    long double accel_y    = 1.0l*accel.getYComponent()/(this->getMass()*1.0l);
+    long double accel_x    = 1.0l*force.getXComponent()/(this->getMass()*1.0l);
+    long double accel_y    = 1.0l*force.getYComponent()/(this->getMass()*1.0l);
 
     //Get the components of our velocity so as to modify them by our accel
-    long double velocity_x = velocity*cos(theta*(PI/180.0l));
-    long double velocity_y = velocity*sin(theta*(PI/180.0l));
+    long double velocity_x = momentum->getXComponent()/(this->getMass()*1.0l);
+    long double velocity_y = momentum->getYComponent()/(this->getMass()*1.0l);
 
-    //Velocity final=Velocity initial + acceleration*t
     velocity_x             = velocity_x + accel_x*t;
     velocity_y             = velocity_y + accel_y*t;
 
-    velocity               = calcVelocity(velocity_x,velocity_y);
+    calcMomentum(velocity_x,velocity_y);
 }
+
 void Object::updateValues()
 {
     //Make a vector to store our forces to be summed later
-    std::vector<Force> forces;
+    std::vector<Vector> forces;
 
     //Get a vector of forces for every body our object might be modified by
     for(Object *x : modifiers)
@@ -141,17 +134,17 @@ void Object::updateValues()
     }
 
     //Add them up!
-    Force force = sumForces(forces);
+    Vector force = sumForces(forces);
 
-    //Modify our velocity by our force
-    modVelocity(force);
+    //Modify our momentum by our force
+    modMomentum(force);
 }
 
 void Object::move()
 {
-    //Translate the object based upon our new velocity vector
-    x += velocityScale*velocity*cos(theta*(PI/180.0l))*t;
-    y += velocityScale*velocity*sin(theta*(PI/180.0l))*t;
+    //Translate the object based upon our new momentum vector
+    x += velocityScale*(momentum->getXComponent()/(this->getMass()*1.0l))*t;
+    y += velocityScale*(momentum->getYComponent()/(this->getMass()*1.0l))*t;
 
     //Put our circle's center at (x,y)
     circle.setPosition(x-radius, y-radius);

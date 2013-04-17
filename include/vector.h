@@ -1,10 +1,10 @@
-#ifndef FORCE_H
-#define FORCE_H
+#ifndef VECTOR_H
+#define VECTOR_H
 #include <math.h>
 #define PI 3.14159265359l
 
 
-class Force
+class Vector
 {
     public:
         long double getXComponent() const;
@@ -13,15 +13,16 @@ class Force
         long double getTheta() const;
         long double getMagnitude() const ;
 
-        Force(long double, long double);
-        virtual ~Force();
+        Vector(long double, long double);
+        virtual ~Vector();
 
-        Force operator+(const Force&);
+        Vector operator+(const Vector&);
 
     protected:
     private:
+        //Angle, measured in DEGREES
         long double theta;
         long double magnitude;
 };
 
-#endif // FORCE_H
+#endif // VECTOR_H

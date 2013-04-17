@@ -39,10 +39,10 @@ int main()
     sf::RenderWindow App(sf::VideoMode(1920, 1030), "SFML window");
     App.setVerticalSyncEnabled(true);
 
-    //Consider switching this to initializeVelocity(long double velocity, long double theta)
-    moon ->calcVelocity(1030+29300.0l,0.0);
-    mars ->calcVelocity(26500.0l,0.0);
-    earth->calcVelocity(29300,0.0);
+    //calcMomentum takes two arguments: the x and y component of velocity.
+    moon ->calcMomentum(1030+29300.0l,0.0);
+    mars ->calcMomentum(26500.0l,0.0);
+    earth->calcMomentum(29300,0.0);
 
 	//Used to navigate the object list
 	unsigned int index = 0;
@@ -146,10 +146,7 @@ int main()
                     //Modify the mass of the object at position index, consider making this dynamic relative to current mass
                     case sf::Keyboard::Up:
                     {
-                        if(Event.key.code == sf::Keyboard::Up)
-                        {
-                            bodies[index]->setMass(bodies[index]->getMass()+1.0e30);
-                        }
+                        bodies[index]->setMass(bodies[index]->getMass()+1.0e30);
 
                         break;
                     }
@@ -157,10 +154,7 @@ int main()
                     //Modify the mass of the object at position index, consider making this dynamic relative to current mass
                     case sf::Keyboard::Down:
                     {
-                        if(Event.key.code == sf::Keyboard::Down)
-                        {
-                            bodies[index]->setMass(bodies[index]->getMass()-1.0e30);
-                        }
+                        bodies[index]->setMass(bodies[index]->getMass()-1.0e30);
 
                         break;
                     }
