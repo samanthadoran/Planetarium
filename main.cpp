@@ -10,6 +10,26 @@ int main()
     Object * sun   = new Object("Sun",1.9891e30,.69,720,450);
     Object * mars  = new Object("Mars",0.64185e24,.339,720,243);
 
+    //Make loops easier
+    std::vector<Object*> bodies;
+
+    bodies.push_back(sun);
+    bodies.push_back(earth);
+    bodies.push_back(moon);
+    bodies.push_back(mars);
+
+    //Every object modifies each other, however, it does not modify itself
+    for(Object *x: bodies)
+    {
+        for(Object *y: bodies)
+        {
+            if(!(*y==*x))
+            {
+                y->addModifier(x);
+            }
+        }
+    }
+
     mars ->circle.setFillColor(sf::Color::Red);
     earth->circle.setFillColor(sf::Color::Blue);
     moon ->circle.setFillColor(sf::Color::White);
@@ -24,40 +44,9 @@ int main()
     mars ->calcVelocity(26500.0l,0.0);
     earth->calcVelocity(29300,0.0);
 
-    moon ->calcVelocityTheta(1030+29300.0l,0.0);
-    earth->calcVelocityTheta(29300,0.0);
-    mars ->calcVelocityTheta(26500.0l,0.0);
-
-    //Give earth pointers to the objects that can modify it.
-    earth->addModifier(moon);
-    earth->addModifier(sun);
-    earth->addModifier(mars);
-
-    //Give the moon pointers to the objects that can modify it.
-    moon->addModifier(sun);
-    moon->addModifier(earth);
-    moon->addModifier(mars);
-
-    //Give mars pointers to the objects that can modify it.
-    mars->addModifier(sun);
-    mars->addModifier(earth);
-    mars->addModifier(moon);
-
-    //Give the sun pointers to the objects that can modify it.
-    sun->addModifier(earth);
-    sun->addModifier(moon);
-    sun->addModifier(mars);
-
-    std::vector<Object*> bodies;
-
-    //Make loops easier
-    bodies.push_back(sun);
-    bodies.push_back(earth);
-    bodies.push_back(moon);
-    bodies.push_back(mars);
-
 	//Used to navigate the object list
 	unsigned int index = 0;
+
 	//Magnifying glass
 	bool focus = true;
 

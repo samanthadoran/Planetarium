@@ -11,8 +11,6 @@ class Object
 {
     public:
 
-        std::vector<Object*> modifiers;
-
         sf::CircleShape circle;
 
         double calcDist(Object) const;
@@ -21,10 +19,10 @@ class Object
         void updateValues();
 
         double calcVelocity(const double, const double);
-        long double calcVelocityTheta(const long double, const long double);
+        void calcVelocityTheta(const long double, const long double);
         void modVelocity(Force);
 
-        long double calcForce(Object) const;
+        Force calcForce(Object) const;
         long double calcForceTheta(Object) const;
 
         Force sumForces(std::vector<Force>) const;
@@ -42,6 +40,7 @@ class Object
         void setMass(double);
         void setRadius(double);
 
+        bool operator==(const Object&);
 
         Object(std::string, double, double, long double, long double);
         virtual ~Object();
@@ -58,16 +57,21 @@ class Object
 
         //Mass of the object measured in kilograms
         float mass;
+
         //Radius of the object, measured in million of kilometers
         double radius;
 
         long double x;
         long double y;
 
+        //Used for displaying object selected and differentiating two objects
         std::string name;
+
+        std::vector<Object*> modifiers;
 
         //The angle for velocity, in DEGREES
         long double theta;
+
         //Velocity, measured in meters per second
         long double velocity;
 };

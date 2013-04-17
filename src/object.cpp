@@ -11,6 +11,7 @@ Object::Object(std::string name,double mass, double radius, long double x, long 
     circle.setRadius(this->radius);
     circle.setPosition(x-radius, y-radius);
 }
+
 //Getter setters
 double Object::getMass() const
 {
@@ -50,12 +51,11 @@ void Object::setRadius(double radius)
     this->radius = radius;
     circle.setRadius(radius);
 }
-//Calculate the theta at which velocity is going
-long double Object::calcVelocityTheta(const long double diffX, const long double diffY)
-{
-    theta = (atan2(y,x)*(180.0/PI));
 
-    return  (atan2(diffY,diffX)*(180.0/PI));
+//Calculate the theta at which velocity is going
+void Object::calcVelocityTheta(const long double diffX, const long double diffY)
+{
+    theta = (atan2(diffY,diffX)*(180.0/PI));
 }
 
 //Calculate our new velocity
@@ -84,16 +84,20 @@ long double Object::calcForceTheta(Object other) const
     //Difference in x and y to use in atan2
     long double diffY = other.getY()*scale-this->getY()*scale;
     long double diffX = other.getX()*scale-this->getX()*scale;
+
     return (atan2(diffY, diffX)*(180.0l/PI));
 }
 
-long double Object::calcForce(Object obj) const
+Force Object::calcForce(Object obj) const
 {
     //Get the distance for use in the force equation
     long double distance = calcDist(obj);
 
     //FG = G*(M1*M2)/(r^2)
-    return ((6.674*pow(10,-11)*(this->getMass()*obj.getMass()))/pow(distance,2));
+    long double magnitude = ((6.674*pow(10,-11)*(this->getMass()*obj.getMass()))/pow(distance,2));
+    long double forceTheta = calcForceTheta(obj);
+
+    return Force(magnitude, forceTheta);
 }
 
 Force Object::sumForces(std::vector<Force> forces) const
@@ -124,8 +128,6 @@ void Object::modVelocity(Force accel)
     velocity_y             = velocity_y + accel_y*t;
 
     velocity               = calcVelocity(velocity_x,velocity_y);
-
-    theta                  = calcVelocityTheta(velocity_x,velocity_y);
 }
 void Object::updateValues()
 {
@@ -135,13 +137,9 @@ void Object::updateValues()
     //Get a vector of forces for every body our object might be modified by
     for(Object *x : modifiers)
     {
-        long double magnitude = calcForce(*x);
-        long double theta = calcForceTheta(*x);
-
-        Force newForce(magnitude, theta);
-
-        forces.push_back(newForce);
+        forces.push_back(calcForce(*x));
     }
+
     //Add them up!
     Force force = sumForces(forces);
 
@@ -155,7 +153,13 @@ void Object::move()
     x += velocityScale*velocity*cos(theta*(PI/180.0l))*t;
     y += velocityScale*velocity*sin(theta*(PI/180.0l))*t;
 
+    //Put our circle's center at (x,y)
     circle.setPosition(x-radius, y-radius);
+}
+
+bool Object::operator== (const Object &other)
+{
+    return (other.getName().compare(this->getName()) == 0);
 }
 
 Object::~Object()
