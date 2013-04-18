@@ -49,7 +49,7 @@ Vector Vector::operator+ (const Vector &other)
     long double xComp    = this->getXComponent()+other.getXComponent();
     long double yComp    = this->getYComponent()+other.getYComponent();
 
-    long double newTheta = atan2(yComp,xComp)*(180.0/PI);
+    long double newTheta = atan2(yComp,xComp)*(180.0l/PI);
 
     long double newMag   = sqrt(pow(xComp,2)+pow(yComp,2));
 

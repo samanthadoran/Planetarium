@@ -1,8 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 #include <math.h>
-#define PI 3.14159265359l
-
+#define PI acos(-1.0l)
 
 class Vector
 {
