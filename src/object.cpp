@@ -1,7 +1,6 @@
 #include "../include/object.h"
-#include <iostream>
 
-Object::Object(std::string name, double mass, double radius, long double x, long double y)
+Object::Object(std::string name, long double mass, long double radius, long double x, long double y)
 {
     this->name   = name;
     this->mass   = mass;
@@ -9,16 +8,20 @@ Object::Object(std::string name, double mass, double radius, long double x, long
     this->x      = x;
     this->y      = y;
     circle.setRadius(this->radius);
-    circle.setPosition(x-radius, y-radius);
+
+    //So we don't have to subtract by r to get our circle at x,y
+    circle.setOrigin(this->radius,this->radius);
+
+    circle.setPosition(x, y);
 }
 
 //Getter setters
-double Object::getMass() const
+long double Object::getMass() const
 {
     return mass;
 }
 
-double Object::getRadius() const
+long double Object::getRadius() const
 {
     return radius;
 }
@@ -28,7 +31,7 @@ std::string Object::getName() const
     return name;
 }
 
-void Object::setMass(double mass)
+void Object::setMass(long double mass)
 {
     if(mass > 0.0)
     {
@@ -46,10 +49,11 @@ long double Object::getY() const
     return y;
 }
 
-void Object::setRadius(double radius)
+void Object::setRadius(long double radius)
 {
     this->radius = radius;
     circle.setRadius(radius);
+    circle.setOrigin(this->radius,this->radius);
 }
 
 void Object::calcMomentum(const long double diffX, const long double diffY)
@@ -86,7 +90,7 @@ Vector Object::calcForce(Object obj) const
     long double distance = calcDist(obj);
 
     //FG = G*(M1*M2)/(r^2)
-    long double magnitude = ((6.674*pow(10,-11)*(this->getMass()*obj.getMass()))/pow(distance,2));
+    long double magnitude = ((6.674l*pow(10,-11)*(this->getMass()*obj.getMass()))/pow(distance,2));
     long double forceTheta = calcForceTheta(obj);
 
     return Vector(magnitude, forceTheta);
@@ -146,7 +150,7 @@ void Object::move()
     y += velocityScale*(momentum.getYComponent()/(this->getMass()*1.0l))*t;
 
     //Put our circle's center at (x,y)
-    circle.setPosition(x-radius, y-radius);
+    circle.setPosition(x,y);
 }
 
 bool Object::operator== (const Object &other)
@@ -156,5 +160,12 @@ bool Object::operator== (const Object &other)
 
 Object::~Object()
 {
+    std::cout << "In " << getName() << "'s destructor..." << std::endl;
+
+    std::cout << "Erasing modifiers vector (NOT DELETING)" << std::endl;
+    modifiers.erase(modifiers.begin(),modifiers.end());
+    std::cout << "Modifiers erased!" << std::endl;
+
+    std::cout << "Leaving " << getName() << "'s destructor, ready to be deleted!" <<std::endl;
     //dtor
 }

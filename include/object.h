@@ -3,6 +3,7 @@
 #include <math.h>
 #include <vector>
 #include <string.h>
+#include <iostream>
 #include "vector.h"
 
 #include <SFML/Graphics.hpp>
@@ -29,37 +30,37 @@ class Object
         void move();
 
         //Getter
-        double getMass() const;
-        double getRadius() const;
+        long double getMass() const;
+        long double getRadius() const;
         std::string getName() const;
         long double getX() const;
         long double getY() const;
         Vector getMomentum() const;
 
         //Setter
-        void setMass(double);
-        void setRadius(double);
+        void setMass(long double);
+        void setRadius(long double);
 
         bool operator==(const Object&);
 
-        Object(std::string, double, double, long double, long double);
+        Object(std::string, long double, long double, long double, long double);
         virtual ~Object();
     protected:
     private:
         //Time factor
-        const unsigned int t            = 10000;
+        const unsigned int t            = 100;
 
         //1 million kilometers per pixel, we deal in meters so 1 million * 1 thousand = scale
         const unsigned int scale        = 1000000000;
 
         //The number we multiply velocity by when we are moving to make sure it only moves with reference to scale
-        const long double velocityScale = 0.000000001;
+        const long double velocityScale = 0.000000001l;
 
         //Mass of the object measured in kilograms
-        float mass;
+        long double mass;
 
         //Radius of the object, measured in millions of kilometers
-        double radius;
+        long double radius;
 
         //X,y of the object, represented in millions of kilometers
         long double x;
@@ -70,7 +71,7 @@ class Object
 
         std::vector<Object*> modifiers;
 
-        //Momentum: kg*(m/s)
+        //Momentum, measured in kg*(m/s)
         Vector momentum;
 };
 
