@@ -1,48 +1,80 @@
 #include "include/object.h"
-#include <math.h>
 #include <sstream>
-#include <iostream>
 int main()
 {
-    //Name, mass, radius, x, y
-    Object * moon  = new Object("Moon",7.34767309e22,.017,720,300.7844);
-    Object * earth = new Object("Earth",5.97219e24,.133,720,300.4);
-    Object * sun   = new Object("Sun",1.9891e30,.69,720,450);
-    Object * mars  = new Object("Mars",0.64185e24,.339,720,243);
+    /*Group the planets and their respective moons, using columns for clarity.
+                                   Name,     mass,           radius,     x,   y*/
+    Object * sun     = new Object("Sun",     1.9891e30l,     6.955e-1l,  720, 450);
+
+    Object * mercury = new Object("Mercury", 3.3022e23l,     2.44e-3l,   720, 392.09);
+
+    Object * venus   = new Object("Venus",   4.867e24l,      6.052e-3l,  720, 342.523);
+
+    Object * earth   = new Object("Earth",   5.97219e24l,    6.371e-3l,  720, 300.4);
+    Object * moon    = new Object("Moon",    7.34767309e22l, 1.7374e-3l, 720, 300.7844l);
+
+    Object * mars    = new Object("Mars",    6.4185e23l,     3.39e-3l,   720, 243);
+    Object * deimos  = new Object("Deimos",  1.48e15l,       6.2e-6l,    720, 242.97654l);
+    Object * phobos  = new Object("Phobos",  1.072e16l,      1.11e-5l,   720, 242.990765l);
 
     //Make loops easier
     std::vector<Object*> bodies;
 
     bodies.push_back(sun);
+
+    bodies.push_back(venus);
+
+    bodies.push_back(mercury);
+
     bodies.push_back(earth);
     bodies.push_back(moon);
+
     bodies.push_back(mars);
+    bodies.push_back(deimos);
+    bodies.push_back(phobos);
 
     //Every object modifies each other, however, it does not modify itself
     for(Object *x: bodies)
     {
         for(Object *y: bodies)
         {
-            if(!(*y==*x))
+            if(!(*y == *x))
             {
                 y->addModifier(x);
             }
         }
     }
 
-    mars ->circle.setFillColor(sf::Color::Red);
-    earth->circle.setFillColor(sf::Color::Blue);
-    moon ->circle.setFillColor(sf::Color::White);
-    sun  ->circle.setFillColor(sf::Color::Yellow);
+    sun    ->circle.setFillColor(sf::Color::Yellow);
+
+    mercury->circle.setFillColor(sf::Color::Cyan);
+
+    venus  ->circle.setFillColor(sf::Color::White);
+
+    earth  ->circle.setFillColor(sf::Color::Blue);
+    moon   ->circle.setFillColor(sf::Color::White);
+
+    mars   ->circle.setFillColor(sf::Color::Red);
+    deimos ->circle.setFillColor(sf::Color::White);
+    phobos ->circle.setFillColor(sf::Color::White);
 
     // Create the main window
     sf::RenderWindow App(sf::VideoMode(1920, 1030), "SFML window");
     App.setVerticalSyncEnabled(true);
 
     //calcMomentum takes two arguments: the x and y component of velocity.
-    moon ->calcMomentum(1030+29300.0l,0.0);
-    mars ->calcMomentum(26500.0l,0.0);
-    earth->calcMomentum(29300,0.0);
+    sun    ->calcMomentum(0.0,           0.0);
+
+    venus  ->calcMomentum(35020,         0.0);
+
+    mercury->calcMomentum(47870,         0.0);
+
+    earth  ->calcMomentum(29300,         0.0);
+    moon   ->calcMomentum(1030+29300.0l, 0.0);
+
+    mars   ->calcMomentum(26500.0l,      0.0);
+    deimos ->calcMomentum(1350+26500.0l, 0.0);
+    phobos ->calcMomentum(2138+26500.0l, 0.0);
 
 	//Used to navigate the object list
 	unsigned int index = 0;
@@ -53,30 +85,30 @@ int main()
 	// Start the game loop
     while (App.isOpen())
     {
-        sf::View view;
+        //Update everything relative to its modifiers before we move things, thus movement is simultaneous
+        for(Object *x: bodies)
+        {
+            x->updateValues();
+        }
+
+        for(Object *x: bodies)
+        {
+            x->move();
+        }
 
         //If we are focusing, zoom in on our target!
         if(focus)
         {
-            view.reset(sf::FloatRect(0, 0, 300, 300));
-            view.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-            view.setCenter(bodies[index]->circle.getPosition().x+bodies[index]->getRadius(),bodies[index]->circle.getPosition().y+bodies[index]->getRadius());
-            view.zoom(.00995);
+            sf::View view;
+            view.setCenter(bodies[index]->circle.getPosition());
+            //view.zoom(.0008999); //Reg zoom
+            view.zoom(.0000999); //Phobos/Deimos zoom
             App.setView(view);
         }
         else
         {
             App.setView(App.getDefaultView());
         }
-
-        //Update everything relative to its modifiers before we move things, thus movement is simultaneous
-        mars ->updateValues();
-        moon ->updateValues();
-        earth->updateValues();
-
-        moon ->move();
-        earth->move();
-        mars ->move();
 
         // Create a stringstream to later convert to sf::text
         std::stringstream ss;
@@ -87,6 +119,7 @@ int main()
         ss << "\nSun Coordinates: ("              << sun->getX() <<"," << sun->getY() << ")\n";
         ss << "\nObject selected: "               << bodies[index]->getName();
         ss << "'s current mass: "                 << bodies[index]->getMass();
+        ss << "\nDistance from "                  << bodies[index]->getName() << " to the Sun: "<< bodies[index]->calcDist(*sun);
 
         //Put our data into something sfml can display.
         sf::Text text(ss.str());
@@ -105,6 +138,7 @@ int main()
             if(Event.type == sf::Event::Closed)
             {
                 App.close();
+                break;
             }
 
             if(Event.type == sf::Event::KeyPressed)
@@ -112,12 +146,12 @@ int main()
                 switch(Event.key.code)
                 {
                     //Move up our vector
-                    case sf::Keyboard::Left:
+                    case sf::Keyboard::Right:
                     {
                         //Loop around if we hit the top of the vector
-                        if(index+1==bodies.size())
+                        if(index+1 == bodies.size())
                         {
-                            index=0;
+                            index = 0;
                         }
                         else
                         {
@@ -128,12 +162,12 @@ int main()
                     }
 
                     //Move down our vector
-                    case sf::Keyboard::Right:
+                    case sf::Keyboard::Left:
                     {
                         //Loop around if we hit the bottom of the vector
-                        if(index==0)
+                        if(index == 0)
                         {
-                            index=bodies.size()-1;
+                            index = bodies.size()-1;
                         }
                         else
                         {
@@ -162,19 +196,19 @@ int main()
                     //Switch between showing the solar system and a finer view of the object selected
                     case sf::Keyboard::V:
                     {
-                        focus=!focus;
+                        focus =! focus;
                         if(focus)
                         {
                             for(Object *x : bodies)
                             {
-                                x->setRadius(x->getRadius()/10.0);
+                                x->setRadius(x->getRadius()/100.0);
                             }
                         }
                         else
                         {
                             for(Object *x : bodies)
                             {
-                                x->setRadius((x->getRadius()*10.0));
+                                x->setRadius((x->getRadius()*100.0));
                             }
                         }
 
